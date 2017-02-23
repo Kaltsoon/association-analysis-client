@@ -15,7 +15,7 @@ Beer,Milk
 ...
 ```
 
-The generated rules such as `{ Beer } -> { Milk }`, meaning "Beer is common in transactions containing beer and milk".
+The generated rules such as `{ Beer } -> { Milk }`, meaning "in transactions which contain beer also commonly contain milk".
 
 You can read more about assosiation rule learning [here](https://en.wikipedia.org/wiki/Association_rule_learning).
 
@@ -23,10 +23,10 @@ You can read more about assosiation rule learning [here](https://en.wikipedia.or
 
 1. Install [Node.js](https://nodejs.org/en) and [Yarn](https://yarnpkg.com/en/) 
 1. Download this repository
-2. Run command `yarn` (this install dependencies)
-3. Run command `yarn start -- --transactionsFile ../transactions.txt --itemNamesFile ../itemnames.txt --minSupport 0.2 --minConfidence 0.5`
+2. Run command `yarn` (this command installs the dependencies)
+3. Run command `yarn start -- --transactionsFile ./transactions.txt --itemNamesFile ./itemnames.txt --minSupport 0.2 --minConfidence 0.5`
 
-In the 3. step replace `../transactions.txt` with path to transactions file and `../itemnames.txt` with path to item names file. The paths are relative to the folder download in the 2. step.
+In the 3. step replace `./transactions.txt` with path to transactions file and `./itemnames.txt` with path to item names file. The paths are relative to the folder download in the 2. step.
 Transactions file is any file containing list of lines containing comma separated items, like in example above. 
 Item names file on the other hand is a file containing all possible items separated by comma. In the given example, item names file would contain:
 
