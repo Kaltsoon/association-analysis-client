@@ -11,11 +11,12 @@ function getArgs() {
 }
 
 function initialize() {
-  const { transactionsFile, itemNamesFile, minSupport, minConfidence } = getArgs();
+  const { transactionsFile, itemNamesFile, minSupport, minConfidence, outFile } = getArgs();
 
   cli.parse({
     transactionsFile: path.join(__dirname, '..', transactionsFile),
     itemNamesFile: path.join(__dirname, '..', itemNamesFile),
+    outFile: outFile ? path.join(__dirname, '..', outFile) : null,
     minSupport: +(minSupport || 0.2),
     minConfidence: +(minConfidence || 0.5)
   });

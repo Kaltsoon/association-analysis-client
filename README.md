@@ -36,4 +36,29 @@ Beer,Diapers,Bread,Milk,Butter
 
 The order of the names doesn't matter.
 
-`minSupport` is the minimum support value used to generate frequent itemsets (default is 0.2). `minConfidence` is the minimum confidence value used to generate rules (default is 0.5).
+`minSupport` is the minimum support value used to generate frequent itemsets (default is 0.2). `minConfidence` is the minimum confidence value used to generate rules (default is 0.5). If you want to write the output to file set `--outFile` flag value to the output file path. If `outFile` is not provided, output will be written to stdout. If algorithm is executed successfully the output format in `outFile` is the following JSON object:
+
+```
+{
+  frequentItemsets: FrequentItemset[],
+  rules: RuleWithConfidence[]
+}
+```
+
+where types are following:
+
+```
+Itemset = string[];
+
+FrequentItemset = {
+  itemset: Itemset,
+  support: number,
+};
+
+Rule = [Itemset, Itemset];
+
+RuleWithConfidence = {
+  rule: Rule,
+  confidence: number,
+};
+```
