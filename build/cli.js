@@ -34,7 +34,7 @@ function stripSpecialCharacters(string) {
   return string.replace(/(\r\n|\n|\r|\$)/gm, '');
 }
 
-function readDataFileByLine(filePath) {
+function readTransactionsFileByLine(filePath) {
   const eventEmitter = new EventEmitter();
 
   const readStream = fs.createReadStream(filePath);
@@ -119,7 +119,15 @@ function renderRule(ruleWithConfidence) {
 }
 
 function writeOutputToFile(filePath, frequentItemsets, rules) {
-  fs.writeFile(filePath, JSON.stringify({ frequentItemsets, rules }));
+  return new Promise((resolve, reject) => {
+    fs.writeFile(filePath, JSON.stringify({ frequentItemsets, rules }), err => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(null);
+      }
+    });
+  });
 }
 
 function writeOutputToStdout(frequentItemsets, rules) {
@@ -157,7 +165,7 @@ function parse(args) {
 
     const tree = new FPTree();
 
-    readDataFileByLine(transactionsFile).on(events.TRANSACTION_LINE, line => {
+    readTransactionsFileByLine(transactionsFile).on(events.TRANSACTION_LINE, line => {
       tree.addTransaction(new Transaction(line));
     }).on(events.END_OF_TRANSACTIONS, ({ numberOfLines }) => {
       echoSuccess(`Successfully read ${numberOfLines} transactions!`);
@@ -167,16 +175,14 @@ function parse(args) {
       if (outFile) {
         echoWrite(`Writing output to ${outFile}...`);
 
-        try {
-          writeOutputToFile(outFile, frequentItemsets, rules);
-        } catch (e) {
-          echoError(e);
-        }
+        writeOutputToFile(outFile, frequentItemsets, rules).then(() => {
+          echoSuccess(`Successfully wrote results to ${outFile}!`);
+        }).catch(echoError);
       } else {
         writeOutputToStdout(frequentItemsets, rules);
       }
     });
-  }).catch(err => echoError(err));
+  }).catch(echoError);
 }
 
 module.exports = cli;
