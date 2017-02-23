@@ -35,7 +35,7 @@ function stripSpecialCharacters(string: string): string {
   return string.replace(/(\r\n|\n|\r|\$)/gm, '');
 }
 
-function readDataFileByLine(filePath: string): EventEmitter {
+function readTransactionsFileByLine(filePath: string): EventEmitter {
   const eventEmitter = new EventEmitter();
 
   const readStream = fs.createReadStream(filePath);
@@ -129,8 +129,16 @@ function renderRule(ruleWithConfidence: RuleWithConfidence): string {
   return `{ ${rule[0].join(', ')} } -> { ${rule[1].join(', ')} } (confidence: ${_.round(confidence, 2)})`;
 }
 
-function writeOutputToFile(filePath: string, frequentItemsets: FrequentItemset[], rules: RuleWithConfidence[]): void {
-  fs.writeFile(filePath, JSON.stringify({ frequentItemsets, rules }));
+function writeOutputToFile(filePath: string, frequentItemsets: FrequentItemset[], rules: RuleWithConfidence[]): Promise<null> {
+  return new Promise((resolve, reject) => {
+    fs.writeFile(filePath, JSON.stringify({ frequentItemsets, rules }), err => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(null);
+      }
+    });
+  });
 }
 
 function writeOutputToStdout(frequentItemsets: FrequentItemset[], rules: RuleWithConfidence[]): void {
@@ -169,7 +177,7 @@ function parse(args: ({ transactionsFile: string, itemNamesFile: string, outFile
 
       const tree = new FPTree();
 
-      readDataFileByLine(transactionsFile)
+      readTransactionsFileByLine(transactionsFile)
         .on(events.TRANSACTION_LINE, line => {
           tree.addTransaction(new Transaction(line));
         })
@@ -186,17 +194,17 @@ function parse(args: ({ transactionsFile: string, itemNamesFile: string, outFile
           if (outFile) {
             echoWrite(`Writing output to ${outFile}...`);
 
-            try {
-              writeOutputToFile(outFile, frequentItemsets, rules);
-            } catch (e) {
-              echoError(e);
-            }
+            writeOutputToFile(outFile, frequentItemsets, rules)
+              .then(() => {
+                echoSuccess(`Successfully wrote results to ${outFile}!`);
+              })
+              .catch(echoError);
           } else {
             writeOutputToStdout(frequentItemsets, rules);
           }
         });
     })
-    .catch(err => echoError(err));
+    .catch(echoError);
 }
 
 module.exports = cli;
